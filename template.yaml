@@ -1,0 +1,33 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Infraestructura automatizada para el proyecto Soluciones Tecnológicas - Punto 5
+
+Resources:
+  # 1. Creación del Bucket S3 con versionado habilitado
+  MiBucketProyecto:
+    Type: 'AWS::S3::Bucket'
+    Properties:
+      # El nombre incluye tu ID de cuenta para que sea único
+      BucketName: !Sub 'devops-bucket-${AWS::AccountId}'
+      VersioningConfiguration:
+        Status: Enabled
+
+  # 2. Creación de la instancia EC2
+  MiInstanciaEC2:
+    Type: 'AWS::EC2::Instance'
+    Properties:
+      # AMI estándar de Amazon Linux 2023 (us-east-1)
+      ImageId: '{{resolve:ssm:/aws/service/ami-amazon-linux-latest/al2023-ami-kernel-6.1-x86_64}}'
+      InstanceType: t2.micro
+      # MUY IMPORTANTE: Usar el LabRole obligatorio del Learner Lab
+      IamInstanceProfile: LabInstanceProfile
+      Tags:
+        - Key: Name
+          Value: Servidor-DevOps-Proyecto
+
+Outputs:
+  BucketName:
+    Description: Nombre del bucket creado
+    Value: !Ref MiBucketProyecto
+  InstanceId:
+    Description: ID de la instancia EC2 creada
+    Value: !Ref MiInstanciaEC2
